@@ -1,0 +1,2 @@
+# xlog
+Simple logging package
