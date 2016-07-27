@@ -35,6 +35,7 @@ func New(lvl int, logw ...io.Writer) error {
 	if lg > 4 {
 		return fmt.Errorf("You supplied %d flag writers.  4 is the max", lg)
 	}
+	//default should be to stdout
 	Error = log.New(ioutil.Discard, "Error", log.Ldate|log.Ltime|log.Lshortfile)
 	Warning = log.New(ioutil.Discard, "Warning", log.Ldate|log.Ltime|log.Lshortfile)
 	Debug = log.New(ioutil.Discard, "Debug", log.Ldate|log.Ltime|log.Lshortfile)
