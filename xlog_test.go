@@ -9,7 +9,7 @@ import (
 
 func TestErrorOutput(t *testing.T) {
 	errbuf := new(bytes.Buffer)
-	errLog := New(errbuf)
+	errLog := New(1, errbuf)
 	if errLog != nil {
 		t.Error(errLog)
 		t.Fail()
@@ -23,7 +23,7 @@ func TestErrorOutput(t *testing.T) {
 	}
 }
 func TestNoWriters(t *testing.T) {
-	errLog := New()
+	errLog := New(0)
 	if errLog != nil {
 		t.Error(errLog)
 		t.Fail()
@@ -33,7 +33,7 @@ func TestNoWriters(t *testing.T) {
 
 func TestAllOutput(t *testing.T) {
 	var eb, wb, db, ib = new(bytes.Buffer), new(bytes.Buffer), new(bytes.Buffer), new(bytes.Buffer)
-	errLog := New(eb, wb, db, ib)
+	errLog := New(4, eb, wb, db, ib)
 	logmap := map[int]*log.Logger{0: Error, 1: Warning, 2: Debug, 3: Info}
 	bufmap := map[int]*bytes.Buffer{0: eb, 1: wb, 2: db, 3: ib}
 	if errLog != nil {
