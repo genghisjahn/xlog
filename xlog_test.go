@@ -28,7 +28,7 @@ func TestNoWriters(t *testing.T) {
 		t.Error(errLog)
 		t.Fail()
 	}
-	Error.Println("Message")
+	//Maybe capture stdout?
 }
 
 func TestAllOutput(t *testing.T) {
