@@ -56,7 +56,6 @@ func New(lvl int, logw ...io.Writer) error {
 	}
 
 	for i := 1; i <= len(logw); i++ {
-
 		switch i {
 		case 1: //Error only
 			Error = log.New(logw[0],
@@ -73,27 +72,6 @@ func New(lvl int, logw ...io.Writer) error {
 		case 4: //All
 			Info = log.New(logw[3],
 				infoname,
-				log.Ldate|log.Ltime|log.Lshortfile)
-		}
-	}
-
-	for k := range logw {
-		switch k {
-		case 0:
-			Error = log.New(logw[k],
-				"ERROR: ",
-				log.Ldate|log.Ltime|log.Lshortfile)
-		case 1:
-			Warning = log.New(logw[k],
-				"WARNING: ",
-				log.Ldate|log.Ltime|log.Lshortfile)
-		case 2:
-			Debug = log.New(logw[k],
-				"DEBUG: ",
-				log.Ldate|log.Ltime|log.Lshortfile)
-		case 3:
-			Info = log.New(logw[k],
-				"INFO: ",
 				log.Ldate|log.Ltime|log.Lshortfile)
 		}
 	}
