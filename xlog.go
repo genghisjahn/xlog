@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 var (
@@ -28,6 +29,12 @@ const (
 	//Infolvl sets logging to Info and above
 	Infolvl = 4
 )
+const (
+	errorName   = "ERROR: "
+	warningName = "WARNING: "
+	debugname   = "DEBUG: "
+	infoname    = "INFO: "
+)
 
 //New creates a new set of loggers for various logging levels
 func New(lvl int, logw ...io.Writer) error {
@@ -35,12 +42,41 @@ func New(lvl int, logw ...io.Writer) error {
 	if lg > 4 {
 		return fmt.Errorf("You supplied %d flag writers.  4 is the max", lg)
 	}
-	//default should be to stdout
-	Error = log.New(ioutil.Discard, "Error", log.Ldate|log.Ltime|log.Lshortfile)
-	Warning = log.New(ioutil.Discard, "Warning", log.Ldate|log.Ltime|log.Lshortfile)
-	Debug = log.New(ioutil.Discard, "Debug", log.Ldate|log.Ltime|log.Lshortfile)
-	Info = log.New(ioutil.Discard, "Info", log.Ldate|log.Ltime|log.Lshortfile)
-	//loop over from 1 to 4 instead of ranging over logw
+
+	Error = log.New(os.Stderr, errorName, log.Ldate|log.Ltime|log.Lshortfile)
+	Warning = log.New(os.Stdout, warningName, log.Ldate|log.Ltime|log.Lshortfile)
+	Debug = log.New(os.Stdout, debugname, log.Ldate|log.Ltime|log.Lshortfile)
+	Info = log.New(os.Stdout, infoname, log.Ldate|log.Ltime|log.Lshortfile)
+
+	if len(logw) > 0 {
+		Error = log.New(ioutil.Discard, errorName, 0)
+		Warning = log.New(ioutil.Discard, warningName, 0)
+		Debug = log.New(ioutil.Discard, debugname, 0)
+		Info = log.New(ioutil.Discard, infoname, 0)
+	}
+
+	for i := 1; i <= len(logw); i++ {
+
+		switch i {
+		case 1: //Error only
+			Error = log.New(logw[0],
+				errorName,
+				log.Ldate|log.Ltime|log.Lshortfile)
+		case 2: //Warning & Error
+			Warning = log.New(logw[1],
+				warningName,
+				log.Ldate|log.Ltime|log.Lshortfile)
+		case 3: //Debug, Warning & Error
+			Debug = log.New(logw[2],
+				debugname,
+				log.Ldate|log.Ltime|log.Lshortfile)
+		case 4: //All
+			Info = log.New(logw[3],
+				infoname,
+				log.Ldate|log.Ltime|log.Lshortfile)
+		}
+	}
+
 	for k := range logw {
 		switch k {
 		case 0:
