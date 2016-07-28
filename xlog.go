@@ -54,7 +54,7 @@ func New(lvl int, logw ...io.Writer) error {
 		Debug = log.New(ioutil.Discard, debugname, 0)
 		Info = log.New(ioutil.Discard, infoname, 0)
 	}
-
+	//Change this from a switch to a if
 	switch lvl {
 	case 1:
 		Error = log.New(logw[0],
