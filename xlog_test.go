@@ -22,13 +22,35 @@ func TestErrorOutput(t *testing.T) {
 		t.Errorf("\nExpected prefix %s & suffix %s\nReceived %s\n", p, s, result)
 	}
 }
+
+func TestErrorNoWarningOutput(t *testing.T) {
+	errbuf := new(bytes.Buffer)
+	wbuf := new(bytes.Buffer)
+	errLog := New(1, errbuf, wbuf)
+	if errLog != nil {
+		t.Error(errLog)
+		t.Fail()
+	}
+	Error.Println("A message that contains an error")
+	result := errbuf.String()
+	p := "ERROR:"
+	s := "A message that contains an error\n"
+	if !strings.HasPrefix(result, p) || !strings.HasSuffix(result, s) {
+		t.Errorf("\nExpected prefix %s & suffix %s\nReceived %s\n", p, s, result)
+	}
+	Warning.Println("This should not print.")
+	wo := wbuf.String()
+	if wo != "" {
+		t.Errorf("Warning.Println shouldn't print anything, but it printed %s\n", wo)
+	}
+}
+
 func TestNoWriters(t *testing.T) {
 	errLog := New(0)
 	if errLog != nil {
 		t.Error(errLog)
 		t.Fail()
 	}
-	//Maybe capture stdout?
 }
 
 func TestAllOutput(t *testing.T) {

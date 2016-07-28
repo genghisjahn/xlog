@@ -48,8 +48,6 @@ func New(lvl int, logw ...io.Writer) error {
 	Debug = log.New(os.Stdout, debugname, log.Ldate|log.Ltime|log.Lshortfile)
 	Info = log.New(os.Stdout, infoname, log.Ldate|log.Ltime|log.Lshortfile)
 
-	//Only set to discar if the level is set higher so that
-	//It wouldn't show up anyway, need to think on this some more.
 	if len(logw) > 0 {
 		Error = log.New(ioutil.Discard, errorName, 0)
 		Warning = log.New(ioutil.Discard, warningName, 0)
@@ -57,25 +55,41 @@ func New(lvl int, logw ...io.Writer) error {
 		Info = log.New(ioutil.Discard, infoname, 0)
 	}
 
-	for i := 1; i <= len(logw); i++ {
-		switch i {
-		case 1: //Error only
-			Error = log.New(logw[0],
-				errorName,
-				log.Ldate|log.Ltime|log.Lshortfile)
-		case 2: //Warning & Error
-			Warning = log.New(logw[1],
-				warningName,
-				log.Ldate|log.Ltime|log.Lshortfile)
-		case 3: //Debug, Warning & Error
-			Debug = log.New(logw[2],
-				debugname,
-				log.Ldate|log.Ltime|log.Lshortfile)
-		case 4: //All
-			Info = log.New(logw[3],
-				infoname,
-				log.Ldate|log.Ltime|log.Lshortfile)
-		}
+	switch lvl {
+	case 1:
+		Error = log.New(logw[0],
+			errorName,
+			log.Ldate|log.Ltime|log.Lshortfile)
+	case 2: //Warning & Error
+		Error = log.New(logw[0],
+			errorName,
+			log.Ldate|log.Ltime|log.Lshortfile)
+		Warning = log.New(logw[1],
+			warningName,
+			log.Ldate|log.Ltime|log.Lshortfile)
+	case 3: //Debug, Warning & Error
+		Error = log.New(logw[0],
+			errorName,
+			log.Ldate|log.Ltime|log.Lshortfile)
+		Warning = log.New(logw[1],
+			warningName,
+			log.Ldate|log.Ltime|log.Lshortfile)
+		Debug = log.New(logw[2],
+			debugname,
+			log.Ldate|log.Ltime|log.Lshortfile)
+	case 4: //All
+		Error = log.New(logw[0],
+			errorName,
+			log.Ldate|log.Ltime|log.Lshortfile)
+		Warning = log.New(logw[1],
+			warningName,
+			log.Ldate|log.Ltime|log.Lshortfile)
+		Debug = log.New(logw[2],
+			debugname,
+			log.Ldate|log.Ltime|log.Lshortfile)
+		Info = log.New(logw[3],
+			infoname,
+			log.Ldate|log.Ltime|log.Lshortfile)
 	}
 	return nil
 }
