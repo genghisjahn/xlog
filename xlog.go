@@ -75,5 +75,8 @@ func getLogger(lvl int, name string, logw []io.Writer) *log.Logger {
 			name,
 			xborbits)
 	}
+	if lvl == 1 {
+		return log.New(os.Stderr, name, xborbits)
+	}
 	return log.New(os.Stdout, name, xborbits)
 }
