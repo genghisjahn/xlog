@@ -49,7 +49,7 @@ func New(lvl int, logw ...io.Writer) error {
 	Info = log.New(os.Stdout, infoname, log.Ldate|log.Ltime|log.Lshortfile)
 
 	if lvl >= Errorlvl {
-		if lg >= lvl {
+		if lg >= Errorlvl {
 			Error = log.New(logw[0],
 				errorname,
 				log.Ldate|log.Ltime|log.Lshortfile)
@@ -61,7 +61,7 @@ func New(lvl int, logw ...io.Writer) error {
 		Info = log.New(ioutil.Discard, infoname, 0)
 	}
 	if lvl >= Warninglvl {
-		if lg >= lvl {
+		if lg >= Warninglvl {
 			Warning = log.New(logw[1],
 				warningname,
 				log.Ldate|log.Ltime|log.Lshortfile)
@@ -72,7 +72,7 @@ func New(lvl int, logw ...io.Writer) error {
 		Info = log.New(ioutil.Discard, infoname, 0)
 	}
 	if lvl >= Debuglvl {
-		if lg >= lvl {
+		if lg >= Debuglvl {
 			Debug = log.New(logw[2],
 				debugname,
 				log.Ldate|log.Ltime|log.Lshortfile)
@@ -82,7 +82,7 @@ func New(lvl int, logw ...io.Writer) error {
 		Info = log.New(ioutil.Discard, infoname, 0)
 	}
 	if lvl == Infolvl {
-		if lg >= lvl {
+		if lg >= Infolvl {
 			Info = log.New(logw[3],
 				infoname,
 				log.Ldate|log.Ltime|log.Lshortfile)
