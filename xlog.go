@@ -88,7 +88,6 @@ func New(lvl int, logw ...io.Writer) error {
 				log.Ldate|log.Ltime|log.Lshortfile)
 		} else {
 			Info = log.New(os.Stdout, infoname, log.Ldate|log.Ltime|log.Lshortfile)
-
 		}
 	}
 	return nil
