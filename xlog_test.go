@@ -23,6 +23,15 @@ func TestErrorOutput(t *testing.T) {
 	}
 }
 
+func TestInvalidWritersGivenLevel(t *testing.T) {
+	errbuf := new(bytes.Buffer)
+	errLog := New(2, errbuf)
+	if errLog == nil {
+		t.Error("This should have returned an error.  Level 2 was specified, but only 1 logger was given.")
+		t.Fail()
+	}
+}
+
 func TestErrorNoWarningOutput(t *testing.T) {
 	errbuf := new(bytes.Buffer)
 	wbuf := new(bytes.Buffer)

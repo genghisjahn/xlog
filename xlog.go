@@ -39,7 +39,7 @@ const (
 //New creates a new set of loggers for various logging levels
 func New(lvl int, logw ...io.Writer) error {
 	lg := len(logw)
-	if lvl < 1 || lvl > 4 {
+	if lvl < 0 || lvl > 4 {
 		return fmt.Errorf("lvl must be 0, 1, 2, 3, or 4")
 	}
 	if lg < lvl {
