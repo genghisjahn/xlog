@@ -28,12 +28,13 @@ const (
 	Debuglvl = 3
 	//Infolvl sets logging to Info
 	Infolvl = 4
-)
-const (
+
 	errorname   = "ERROR: "
 	warningname = "WARNING: "
 	debugname   = "DEBUG: "
 	infoname    = "INFO: "
+
+	xborbits = log.Ldate | log.Ltime | log.Lshortfile
 )
 
 //New creates a new set of loggers for various logging levels
@@ -42,10 +43,10 @@ func New(lvl int, logw ...io.Writer) error {
 		return fmt.Errorf("lvl must be 1, 2, 3, or 4")
 	}
 
-	Error = log.New(os.Stderr, errorname, log.Ldate|log.Ltime|log.Lshortfile)
-	Warning = log.New(os.Stdout, warningname, log.Ldate|log.Ltime|log.Lshortfile)
-	Debug = log.New(os.Stdout, debugname, log.Ldate|log.Ltime|log.Lshortfile)
-	Info = log.New(os.Stdout, infoname, log.Ldate|log.Ltime|log.Lshortfile)
+	Error = log.New(os.Stderr, errorname, xborbits)
+	Warning = log.New(os.Stdout, warningname, xborbits)
+	Debug = log.New(os.Stdout, debugname, xborbits)
+	Info = log.New(os.Stdout, infoname, xborbits)
 
 	if lvl >= Errorlvl {
 		Error = getLogger(Errorlvl, errorname, logw)
@@ -72,7 +73,10 @@ func getLogger(lvl int, name string, logw []io.Writer) *log.Logger {
 	if len(logw) >= lvl {
 		return log.New(logw[lvl-1],
 			name,
-			log.Ldate|log.Ltime|log.Lshortfile)
+			xborbits)
 	}
-	return log.New(os.Stdout, name, log.Ldate|log.Ltime|log.Lshortfile)
+	if lvl == 1 {
+		return log.New(os.Stderr, name, xborbits)
+	}
+	return log.New(os.Stdout, name, xborbits)
 }
