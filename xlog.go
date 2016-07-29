@@ -39,8 +39,11 @@ const (
 //New creates a new set of loggers for various logging levels
 func New(lvl int, logw ...io.Writer) error {
 	lg := len(logw)
-	if lg > 4 {
-		return fmt.Errorf("You supplied %d flag writers.  4 is the max", lg)
+	if lvl < 1 || lvl > 4 {
+		return fmt.Errorf("lvl must be 0, 1, 2, 3, or 4")
+	}
+	if lg < lvl {
+		return fmt.Errorf("You must supply at least %d io.Writers\n", lvl)
 	}
 
 	Error = log.New(os.Stderr, errorName, log.Ldate|log.Ltime|log.Lshortfile)
@@ -54,39 +57,22 @@ func New(lvl int, logw ...io.Writer) error {
 		Debug = log.New(ioutil.Discard, debugname, 0)
 		Info = log.New(ioutil.Discard, infoname, 0)
 	}
-	//Change this from a switch to a if
-	switch lvl {
-	case 1:
+	if lvl >= 1 {
 		Error = log.New(logw[0],
 			errorName,
 			log.Ldate|log.Ltime|log.Lshortfile)
-	case 2: //Warning & Error
-		Error = log.New(logw[0],
-			errorName,
-			log.Ldate|log.Ltime|log.Lshortfile)
+	}
+	if lvl >= 2 {
 		Warning = log.New(logw[1],
 			warningName,
 			log.Ldate|log.Ltime|log.Lshortfile)
-	case 3: //Debug, Warning & Error
-		Error = log.New(logw[0],
-			errorName,
-			log.Ldate|log.Ltime|log.Lshortfile)
-		Warning = log.New(logw[1],
-			warningName,
-			log.Ldate|log.Ltime|log.Lshortfile)
+	}
+	if lvl >= 3 {
 		Debug = log.New(logw[2],
 			debugname,
 			log.Ldate|log.Ltime|log.Lshortfile)
-	case 4: //All
-		Error = log.New(logw[0],
-			errorName,
-			log.Ldate|log.Ltime|log.Lshortfile)
-		Warning = log.New(logw[1],
-			warningName,
-			log.Ldate|log.Ltime|log.Lshortfile)
-		Debug = log.New(logw[2],
-			debugname,
-			log.Ldate|log.Ltime|log.Lshortfile)
+	}
+	if lvl == 4 {
 		Info = log.New(logw[3],
 			infoname,
 			log.Ldate|log.Ltime|log.Lshortfile)
