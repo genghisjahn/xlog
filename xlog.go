@@ -11,7 +11,7 @@ import (
 var (
 	//Info logger instance for things like starts steps, scheduled tasks
 	Info *log.Logger
-	//Debug logger intsance for debug statements to troubleshoot
+	//Debug logger instance for debug statements to troubleshoot
 	Debug *log.Logger
 	//Warning logger instance for (no one reads warnings)
 	Warning *log.Logger
@@ -26,7 +26,7 @@ const (
 	Warninglvl = 2
 	//Debuglvl sets logging level to Debug and above
 	Debuglvl = 3
-	//Infolvl sets logging to Info and above
+	//Infolvl sets logging to Info
 	Infolvl = 4
 )
 const (
@@ -38,7 +38,6 @@ const (
 
 //New creates a new set of loggers for various logging levels
 func New(lvl int, logw ...io.Writer) error {
-	lg := len(logw)
 	if lvl < Errorlvl || lvl > Infolvl {
 		return fmt.Errorf("lvl must be 1, 2, 3, or 4")
 	}
@@ -49,46 +48,31 @@ func New(lvl int, logw ...io.Writer) error {
 	Info = log.New(os.Stdout, infoname, log.Ldate|log.Ltime|log.Lshortfile)
 
 	if lvl >= Errorlvl {
-		if lg >= Errorlvl {
-			Error = log.New(logw[0],
-				errorname,
-				log.Ldate|log.Ltime|log.Lshortfile)
-		} else {
-			Error = log.New(os.Stderr, errorname, log.Ldate|log.Ltime|log.Lshortfile)
-		}
+		Error = getLogger(Errorlvl, errorname, logw)
 		Warning = log.New(ioutil.Discard, warningname, 0)
 		Debug = log.New(ioutil.Discard, debugname, 0)
 		Info = log.New(ioutil.Discard, infoname, 0)
 	}
 	if lvl >= Warninglvl {
-		if lg >= Warninglvl {
-			Warning = log.New(logw[1],
-				warningname,
-				log.Ldate|log.Ltime|log.Lshortfile)
-		} else {
-			Warning = log.New(os.Stdout, warningname, log.Ldate|log.Ltime|log.Lshortfile)
-		}
+		Warning = getLogger(Warninglvl, warningname, logw)
 		Debug = log.New(ioutil.Discard, debugname, 0)
 		Info = log.New(ioutil.Discard, infoname, 0)
 	}
 	if lvl >= Debuglvl {
-		if lg >= Debuglvl {
-			Debug = log.New(logw[2],
-				debugname,
-				log.Ldate|log.Ltime|log.Lshortfile)
-		} else {
-			Debug = log.New(os.Stdout, debugname, log.Ldate|log.Ltime|log.Lshortfile)
-		}
+		Debug = getLogger(Debuglvl, debugname, logw)
 		Info = log.New(ioutil.Discard, infoname, 0)
 	}
 	if lvl == Infolvl {
-		if lg >= Infolvl {
-			Info = log.New(logw[3],
-				infoname,
-				log.Ldate|log.Ltime|log.Lshortfile)
-		} else {
-			Info = log.New(os.Stdout, infoname, log.Ldate|log.Ltime|log.Lshortfile)
-		}
+		Info = getLogger(Infolvl, infoname, logw)
 	}
 	return nil
+}
+
+func getLogger(lvl int, name string, logw []io.Writer) *log.Logger {
+	if len(logw) >= lvl {
+		return log.New(logw[lvl-1],
+			name,
+			log.Ldate|log.Ltime|log.Lshortfile)
+	}
+	return log.New(os.Stdout, name, log.Ldate|log.Ltime|log.Lshortfile)
 }
