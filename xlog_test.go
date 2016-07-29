@@ -2,6 +2,7 @@ package xlog
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"strings"
 	"testing"
@@ -12,7 +13,6 @@ func TestErrorOutput(t *testing.T) {
 	errLog := New(1, errbuf)
 	if errLog != nil {
 		t.Error(errLog)
-		t.Fail()
 	}
 	Error.Println("A message that contains an error")
 	result := errbuf.String()
@@ -29,7 +29,6 @@ func TestErrorNoWarningOutput(t *testing.T) {
 	errLog := New(1, errbuf, wbuf)
 	if errLog != nil {
 		t.Error(errLog)
-		t.Fail()
 	}
 	Error.Println("A message that contains an error")
 	result := errbuf.String()
@@ -49,7 +48,20 @@ func TestNoWriters(t *testing.T) {
 	errLog := New(1)
 	if errLog != nil {
 		t.Error(errLog)
-		t.Fail()
+	}
+}
+
+func TestInvalidLevel(t *testing.T) {
+	errLog := New(5)
+	if errLog == nil {
+		fmt.Println("This should have returned an error, it's an invalid logging level")
+	}
+}
+
+func TestDebugWithoutWriter(t *testing.T) {
+	errLog := New(4)
+	if errLog != nil {
+		t.Error(errLog)
 	}
 }
 
