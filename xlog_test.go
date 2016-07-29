@@ -9,7 +9,7 @@ import (
 
 func TestErrorOutput(t *testing.T) {
 	errbuf := new(bytes.Buffer)
-	errLog := New(errbuf)
+	errLog := New(1, errbuf)
 	if errLog != nil {
 		t.Error(errLog)
 		t.Fail()
@@ -22,18 +22,49 @@ func TestErrorOutput(t *testing.T) {
 		t.Errorf("\nExpected prefix %s & suffix %s\nReceived %s\n", p, s, result)
 	}
 }
-func TestNoWriters(t *testing.T) {
-	errLog := New()
+
+func TestInvalidWritersGivenLevel(t *testing.T) {
+	errbuf := new(bytes.Buffer)
+	errLog := New(2, errbuf)
+	if errLog == nil {
+		t.Error("This should have returned an error.  Level 2 was specified, but only 1 logger was given.")
+		t.Fail()
+	}
+}
+
+func TestErrorNoWarningOutput(t *testing.T) {
+	errbuf := new(bytes.Buffer)
+	wbuf := new(bytes.Buffer)
+	errLog := New(1, errbuf, wbuf)
 	if errLog != nil {
 		t.Error(errLog)
 		t.Fail()
 	}
-	Error.Println("Message")
+	Error.Println("A message that contains an error")
+	result := errbuf.String()
+	p := "ERROR:"
+	s := "A message that contains an error\n"
+	if !strings.HasPrefix(result, p) || !strings.HasSuffix(result, s) {
+		t.Errorf("\nExpected prefix %s & suffix %s\nReceived %s\n", p, s, result)
+	}
+	Warning.Println("This should not print.")
+	wo := wbuf.String()
+	if wo != "" {
+		t.Errorf("Warning.Println shouldn't print anything, but it printed %s\n", wo)
+	}
+}
+
+func TestNoWriters(t *testing.T) {
+	errLog := New(0)
+	if errLog != nil {
+		t.Error(errLog)
+		t.Fail()
+	}
 }
 
 func TestAllOutput(t *testing.T) {
 	var eb, wb, db, ib = new(bytes.Buffer), new(bytes.Buffer), new(bytes.Buffer), new(bytes.Buffer)
-	errLog := New(eb, wb, db, ib)
+	errLog := New(4, eb, wb, db, ib)
 	logmap := map[int]*log.Logger{0: Error, 1: Warning, 2: Debug, 3: Info}
 	bufmap := map[int]*bytes.Buffer{0: eb, 1: wb, 2: db, 3: ib}
 	if errLog != nil {
