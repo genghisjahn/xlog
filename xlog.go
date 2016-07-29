@@ -30,8 +30,8 @@ const (
 	Infolvl = 4
 )
 const (
-	errorName   = "ERROR: "
-	warningName = "WARNING: "
+	errorname   = "ERROR: "
+	warningname = "WARNING: "
 	debugname   = "DEBUG: "
 	infoname    = "INFO: "
 )
@@ -39,43 +39,57 @@ const (
 //New creates a new set of loggers for various logging levels
 func New(lvl int, logw ...io.Writer) error {
 	lg := len(logw)
-	if lvl < 0 || lvl > 4 {
-		return fmt.Errorf("lvl must be 0, 1, 2, 3, or 4")
-	}
-	if lg < lvl {
-		return fmt.Errorf("You must supply at least %d io.Writers\n", lvl)
+	if lvl < Errorlvl || lvl > Infolvl {
+		return fmt.Errorf("lvl must be 1, 2, 3, or 4")
 	}
 
-	Error = log.New(os.Stderr, errorName, log.Ldate|log.Ltime|log.Lshortfile)
-	Warning = log.New(os.Stdout, warningName, log.Ldate|log.Ltime|log.Lshortfile)
+	Error = log.New(os.Stderr, errorname, log.Ldate|log.Ltime|log.Lshortfile)
+	Warning = log.New(os.Stdout, warningname, log.Ldate|log.Ltime|log.Lshortfile)
 	Debug = log.New(os.Stdout, debugname, log.Ldate|log.Ltime|log.Lshortfile)
 	Info = log.New(os.Stdout, infoname, log.Ldate|log.Ltime|log.Lshortfile)
 
-	if len(logw) > 0 {
-		Error = log.New(ioutil.Discard, errorName, 0)
-		Warning = log.New(ioutil.Discard, warningName, 0)
+	if lvl >= Errorlvl {
+		if lg >= lvl {
+			Error = log.New(logw[0],
+				errorname,
+				log.Ldate|log.Ltime|log.Lshortfile)
+		} else {
+			Error = log.New(os.Stderr, errorname, log.Ldate|log.Ltime|log.Lshortfile)
+		}
+		Warning = log.New(ioutil.Discard, warningname, 0)
 		Debug = log.New(ioutil.Discard, debugname, 0)
 		Info = log.New(ioutil.Discard, infoname, 0)
 	}
-	if lvl >= 1 {
-		Error = log.New(logw[0],
-			errorName,
-			log.Ldate|log.Ltime|log.Lshortfile)
+	if lvl >= Warninglvl {
+		if lg >= lvl {
+			Warning = log.New(logw[1],
+				warningname,
+				log.Ldate|log.Ltime|log.Lshortfile)
+		} else {
+			Warning = log.New(os.Stdout, warningname, log.Ldate|log.Ltime|log.Lshortfile)
+		}
+		Debug = log.New(ioutil.Discard, debugname, 0)
+		Info = log.New(ioutil.Discard, infoname, 0)
 	}
-	if lvl >= 2 {
-		Warning = log.New(logw[1],
-			warningName,
-			log.Ldate|log.Ltime|log.Lshortfile)
+	if lvl >= Debuglvl {
+		if lg >= lvl {
+			Debug = log.New(logw[2],
+				debugname,
+				log.Ldate|log.Ltime|log.Lshortfile)
+		} else {
+			Debug = log.New(os.Stdout, debugname, log.Ldate|log.Ltime|log.Lshortfile)
+		}
+		Info = log.New(ioutil.Discard, infoname, 0)
 	}
-	if lvl >= 3 {
-		Debug = log.New(logw[2],
-			debugname,
-			log.Ldate|log.Ltime|log.Lshortfile)
-	}
-	if lvl == 4 {
-		Info = log.New(logw[3],
-			infoname,
-			log.Ldate|log.Ltime|log.Lshortfile)
+	if lvl == Infolvl {
+		if lg >= lvl {
+			Info = log.New(logw[3],
+				infoname,
+				log.Ldate|log.Ltime|log.Lshortfile)
+		} else {
+			Info = log.New(os.Stdout, infoname, log.Ldate|log.Ltime|log.Lshortfile)
+
+		}
 	}
 	return nil
 }
