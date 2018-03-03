@@ -20,6 +20,8 @@ var (
 )
 
 const (
+	//Silencelvl turns off all logging, primarily used during tests
+	Silencelvl = 0
 	//Errorlvl sets logging level to Error
 	Errorlvl = 1
 	//Warninglvl sets logging level to Warning and above
@@ -39,14 +41,21 @@ const (
 
 //New creates a new set of loggers for various logging levels
 func New(lvl int, logw ...io.Writer) error {
-	if lvl < Errorlvl || lvl > Infolvl {
-		return fmt.Errorf("lvl must be 1, 2, 3, or 4")
+	if lvl < Silencelvl || lvl > Infolvl {
+		return fmt.Errorf("lvl must be 0,1, 2, 3, or 4")
 	}
 
 	Error = log.New(os.Stderr, errorname, xborbits)
 	Warning = log.New(os.Stdout, warningname, xborbits)
 	Debug = log.New(os.Stdout, debugname, xborbits)
 	Info = log.New(os.Stdout, infoname, xborbits)
+
+	if lvl >= Silencelvl {
+		Error = log.New(ioutil.Discard, errorname, 0)
+		Warning = log.New(ioutil.Discard, warningname, 0)
+		Debug = log.New(ioutil.Discard, debugname, 0)
+		Info = log.New(ioutil.Discard, infoname, 0)
+	}
 
 	if lvl >= Errorlvl {
 		Error = getLogger(Errorlvl, errorname, logw)
