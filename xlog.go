@@ -17,6 +17,8 @@ var (
 	Warning *log.Logger
 	//Error Logger instance for error events, stuff that shouldn't be happening or shouldn't be happening a lot
 	Error *log.Logger
+
+	reqidname string
 )
 
 const (
@@ -35,9 +37,13 @@ const (
 	warningname = "WARNING: "
 	debugname   = "DEBUG: "
 	infoname    = "INFO: "
-
-	xborbits = log.Ldate | log.Ltime | log.Lshortfile
+	xborbits    = log.Ldate | log.Ltime | log.Lshortfile
 )
+
+func NewWithReqID(lvl int, reqid string) error {
+	reqidname = "ReqID: " + reqid
+	return New(lvl)
+}
 
 //New creates a new set of loggers for various logging levels
 func New(lvl int, logw ...io.Writer) error {
@@ -45,35 +51,35 @@ func New(lvl int, logw ...io.Writer) error {
 		return fmt.Errorf("lvl must be 0,1, 2, 3, or 4")
 	}
 
-	Error = log.New(os.Stderr, errorname, xborbits)
-	Warning = log.New(os.Stdout, warningname, xborbits)
-	Debug = log.New(os.Stdout, debugname, xborbits)
-	Info = log.New(os.Stdout, infoname, xborbits)
+	Error = log.New(os.Stderr, reqidname+errorname, xborbits)
+	Warning = log.New(os.Stdout, reqidname+warningname, xborbits)
+	Debug = log.New(os.Stdout, reqidname+debugname, xborbits)
+	Info = log.New(os.Stdout, reqidname+infoname, xborbits)
 
 	if lvl >= Silencelvl {
-		Error = log.New(ioutil.Discard, errorname, 0)
-		Warning = log.New(ioutil.Discard, warningname, 0)
-		Debug = log.New(ioutil.Discard, debugname, 0)
-		Info = log.New(ioutil.Discard, infoname, 0)
+		Error = log.New(ioutil.Discard, reqidname+errorname, 0)
+		Warning = log.New(ioutil.Discard, reqidname+warningname, 0)
+		Debug = log.New(ioutil.Discard, reqidname+debugname, 0)
+		Info = log.New(ioutil.Discard, reqidname+infoname, 0)
 	}
 
 	if lvl >= Errorlvl {
-		Error = getLogger(Errorlvl, errorname, logw)
-		Warning = log.New(ioutil.Discard, warningname, 0)
-		Debug = log.New(ioutil.Discard, debugname, 0)
-		Info = log.New(ioutil.Discard, infoname, 0)
+		Error = getLogger(Errorlvl, reqidname+errorname, logw)
+		Warning = log.New(ioutil.Discard, reqidname+warningname, 0)
+		Debug = log.New(ioutil.Discard, reqidname+debugname, 0)
+		Info = log.New(ioutil.Discard, reqidname+infoname, 0)
 	}
 	if lvl >= Warninglvl {
-		Warning = getLogger(Warninglvl, warningname, logw)
-		Debug = log.New(ioutil.Discard, debugname, 0)
-		Info = log.New(ioutil.Discard, infoname, 0)
+		Warning = getLogger(Warninglvl, reqidname+warningname, logw)
+		Debug = log.New(ioutil.Discard, reqidname+debugname, 0)
+		Info = log.New(ioutil.Discard, reqidname+infoname, 0)
 	}
 	if lvl >= Debuglvl {
-		Debug = getLogger(Debuglvl, debugname, logw)
-		Info = log.New(ioutil.Discard, infoname, 0)
+		Debug = getLogger(Debuglvl, reqidname+debugname, logw)
+		Info = log.New(ioutil.Discard, reqidname+infoname, 0)
 	}
 	if lvl == Infolvl {
-		Info = getLogger(Infolvl, infoname, logw)
+		Info = getLogger(Infolvl, reqidname+infoname, logw)
 	}
 	return nil
 }
