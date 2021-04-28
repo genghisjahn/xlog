@@ -19,6 +19,7 @@ var (
 	Error *log.Logger
 
 	reqidname string
+	//This is dumb and won't work
 )
 
 const (
