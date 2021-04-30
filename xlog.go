@@ -9,6 +9,8 @@ import (
 	"os"
 )
 
+type Key string
+
 var (
 	//Info logger instance for things like starts steps, scheduled tasks
 	info *log.Logger
@@ -19,7 +21,7 @@ var (
 	//Error Logger instance for error events, stuff that shouldn't be happening or shouldn't be happening a lot
 	errorl *log.Logger
 
-	ctxKeys = []string{}
+	ctxKeys = []Key{}
 )
 
 func getvalsfromctx(ctx ...context.Context) string {
@@ -28,7 +30,7 @@ func getvalsfromctx(ctx ...context.Context) string {
 		for _, v := range ctxKeys {
 			val := ctx[0].Value(v)
 			if val != nil {
-				result += "[" + v + ":" + val.(string) + "] "
+				result += "[" + string(v) + ":" + val.(string) + "] "
 			}
 		}
 	}
@@ -73,7 +75,7 @@ const (
 )
 
 //New creates a new set of loggers for various logging levels
-func New(lvl int, ctxkeys []string, logw ...io.Writer) error {
+func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
 	if lvl < Silencelvl || lvl > Infolvl {
 		return fmt.Errorf("lvl must be 0,1, 2, 3, or 4")
 	}

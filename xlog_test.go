@@ -9,8 +9,6 @@ import (
 	"testing"
 )
 
-type CTXKey string
-
 func TestErrorNoContextVals(t *testing.T) {
 	ctx := context.Background()
 	errbuf := new(bytes.Buffer)
@@ -29,9 +27,9 @@ func TestErrorNoContextVals(t *testing.T) {
 
 func TestErrorWithContext(t *testing.T) {
 	ctx := context.TODO()
-	ctx = context.WithValue(ctx, string("reqid"), "abcd1234")
+	ctx = context.WithValue(ctx, Key("reqid"), "abcd1234")
 	errbuf := new(bytes.Buffer)
-	errLog := New(1, []string{"reqid"}, errbuf)
+	errLog := New(1, []Key{"reqid"}, errbuf)
 	if errLog != nil {
 		t.Error(errLog)
 	}
