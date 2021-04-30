@@ -26,6 +26,7 @@ func getvalsfromctx(ctx ...context.Context) string {
 	result := ""
 	if len(ctx) == 1 {
 		for _, v := range ctxKeys {
+			fmt.Println(v)
 			val := ctx[0].Value(v)
 			result += "[" + v + ":" + val.(string) + "] "
 		}
