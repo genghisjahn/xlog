@@ -24,6 +24,7 @@ var (
 
 func getvalsfromctx(ctx ...context.Context) string {
 	result := ""
+	fmt.Println("****")
 	if len(ctx) == 1 {
 		for _, v := range ctxKeys {
 			fmt.Println(v)
