@@ -1,6 +1,7 @@
 package xlog
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -10,14 +11,44 @@ import (
 
 var (
 	//Info logger instance for things like starts steps, scheduled tasks
-	Info *log.Logger
+	info *log.Logger
 	//Debug logger instance for debug statements to troubleshoot
-	Debug *log.Logger
+	debug *log.Logger
 	//Warning logger instance for (no one reads warnings)
-	Warning *log.Logger
+	warning *log.Logger
 	//Error Logger instance for error events, stuff that shouldn't be happening or shouldn't be happening a lot
-	Error *log.Logger
+	errorl *log.Logger
+
+	ctxKeys = []string{"reqid"}
 )
+
+func getvalsfromctx(ctx ...context.Context) string {
+	result := ""
+	if len(ctx) == 1 {
+		for _, v := range ctxKeys {
+			val := ctx[0].Value(v)
+			result += "[" + v + ":" + val.(string) + "] "
+		}
+	}
+	return result
+}
+
+func Info(ctx ...context.Context) *log.Logger {
+	info.SetPrefix(infoname + getvalsfromctx(ctx...))
+	return info
+}
+func Debug(ctx ...context.Context) *log.Logger {
+	debug.SetPrefix(debugname + getvalsfromctx(ctx...))
+	return debug
+}
+func Warning(ctx ...context.Context) *log.Logger {
+	warning.SetPrefix(warningname + getvalsfromctx(ctx...))
+	return warning
+}
+func Error(ctx ...context.Context) *log.Logger {
+	errorl.SetPrefix(errorname + getvalsfromctx(ctx...))
+	return errorl
+}
 
 const (
 	//Silencelvl turns off all logging, primarily used during tests
@@ -40,40 +71,40 @@ const (
 )
 
 //New creates a new set of loggers for various logging levels
-func New(lvl int, logw ...io.Writer) error {
+func New(lvl int, ctxkeys []string, logw ...io.Writer) error {
 	if lvl < Silencelvl || lvl > Infolvl {
 		return fmt.Errorf("lvl must be 0,1, 2, 3, or 4")
 	}
 
-	Error = log.New(os.Stderr, errorname, xborbits)
-	Warning = log.New(os.Stdout, warningname, xborbits)
-	Debug = log.New(os.Stdout, debugname, xborbits)
-	Info = log.New(os.Stdout, infoname, xborbits)
+	errorl = log.New(os.Stderr, errorname, xborbits)
+	warning = log.New(os.Stdout, warningname, xborbits)
+	debug = log.New(os.Stdout, debugname, xborbits)
+	info = log.New(os.Stdout, infoname, xborbits)
 
 	if lvl >= Silencelvl {
-		Error = log.New(ioutil.Discard, errorname, 0)
-		Warning = log.New(ioutil.Discard, warningname, 0)
-		Debug = log.New(ioutil.Discard, debugname, 0)
-		Info = log.New(ioutil.Discard, infoname, 0)
+		errorl = log.New(ioutil.Discard, errorname, 0)
+		warning = log.New(ioutil.Discard, warningname, 0)
+		debug = log.New(ioutil.Discard, debugname, 0)
+		info = log.New(ioutil.Discard, infoname, 0)
 	}
 
 	if lvl >= Errorlvl {
-		Error = getLogger(Errorlvl, errorname, logw)
-		Warning = log.New(ioutil.Discard, warningname, 0)
-		Debug = log.New(ioutil.Discard, debugname, 0)
-		Info = log.New(ioutil.Discard, infoname, 0)
+		errorl = getLogger(Errorlvl, errorname, logw)
+		warning = log.New(ioutil.Discard, warningname, 0)
+		debug = log.New(ioutil.Discard, debugname, 0)
+		info = log.New(ioutil.Discard, infoname, 0)
 	}
 	if lvl >= Warninglvl {
-		Warning = getLogger(Warninglvl, warningname, logw)
-		Debug = log.New(ioutil.Discard, debugname, 0)
-		Info = log.New(ioutil.Discard, infoname, 0)
+		warning = getLogger(Warninglvl, warningname, logw)
+		debug = log.New(ioutil.Discard, debugname, 0)
+		info = log.New(ioutil.Discard, infoname, 0)
 	}
 	if lvl >= Debuglvl {
-		Debug = getLogger(Debuglvl, debugname, logw)
-		Info = log.New(ioutil.Discard, infoname, 0)
+		debug = getLogger(Debuglvl, debugname, logw)
+		info = log.New(ioutil.Discard, infoname, 0)
 	}
 	if lvl == Infolvl {
-		Info = getLogger(Infolvl, infoname, logw)
+		info = getLogger(Infolvl, infoname, logw)
 	}
 	return nil
 }
