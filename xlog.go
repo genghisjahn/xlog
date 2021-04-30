@@ -19,17 +19,17 @@ var (
 	//Error Logger instance for error events, stuff that shouldn't be happening or shouldn't be happening a lot
 	errorl *log.Logger
 
-	ctxKeys = []string{"reqid"}
+	ctxKeys = []string{}
 )
 
 func getvalsfromctx(ctx ...context.Context) string {
 	result := ""
-	fmt.Println("****")
 	if len(ctx) == 1 {
 		for _, v := range ctxKeys {
-			fmt.Println(v)
 			val := ctx[0].Value(v)
-			result += "[" + v + ":" + val.(string) + "] "
+			if val != nil {
+				result += "[" + v + ":" + val.(string) + "] "
+			}
 		}
 	}
 	return result
@@ -77,7 +77,7 @@ func New(lvl int, ctxkeys []string, logw ...io.Writer) error {
 	if lvl < Silencelvl || lvl > Infolvl {
 		return fmt.Errorf("lvl must be 0,1, 2, 3, or 4")
 	}
-
+	ctxKeys = ctxkeys
 	errorl = log.New(os.Stderr, errorname, xborbits)
 	warning = log.New(os.Stdout, warningname, xborbits)
 	debug = log.New(os.Stdout, debugname, xborbits)

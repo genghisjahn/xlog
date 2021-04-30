@@ -9,11 +9,27 @@ import (
 	"testing"
 )
 
+func TestErrorNoContextVals(t *testing.T) {
+	ctx := context.Background()
+	errbuf := new(bytes.Buffer)
+	errLog := New(1, nil, errbuf)
+	if errLog != nil {
+		t.Error(errLog)
+	}
+	Error(ctx).Println("A message that contains an error with reqid")
+	result := errbuf.String()
+	p := "ERROR: "
+	s := "A message that contains an error with reqid\n"
+	if !strings.HasPrefix(result, p) || !strings.HasSuffix(result, s) {
+		t.Errorf("\nExpected prefix %s & suffix %s\nReceived %s\n", p, s, result)
+	}
+}
+
 func TestErrorWithContext(t *testing.T) {
 	ctx := context.TODO()
 	ctx = context.WithValue(ctx, "reqid", "abcd1234")
 	errbuf := new(bytes.Buffer)
-	errLog := New(1, nil, errbuf)
+	errLog := New(1, []string{"reqid"}, errbuf)
 	if errLog != nil {
 		t.Error(errLog)
 	}
