@@ -21,6 +21,9 @@ var (
 	//Error Logger instance for error events, stuff that shouldn't be happening or shouldn't be happening a lot
 	errorl *log.Logger
 
+	//audit is for specic lines we want to audit for cloud watch/stats/legder
+	audit *log.Logger
+
 	ctxKeys = []Key{}
 )
 
@@ -54,6 +57,11 @@ func Error(ctx ...context.Context) *log.Logger {
 	return errorl
 }
 
+func Audit(ctx ...context.Context) *log.Logger {
+	audit.SetPrefix(auditname + getvalsfromctx(ctx...))
+	return audit
+}
+
 const (
 	//Silencelvl turns off all logging, primarily used during tests
 	Silencelvl = 0
@@ -70,11 +78,12 @@ const (
 	warningname = "WARNING: "
 	debugname   = "DEBUG: "
 	infoname    = "INFO: "
+	auditname   = "AUDIT: "
 
 	xborbits = log.Ldate | log.Ltime | log.Lshortfile
 )
 
-//New creates a new set of loggers for various logging levels
+// New creates a new set of loggers for various logging levels
 func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
 	if lvl < Silencelvl || lvl > Infolvl {
 		return fmt.Errorf("lvl must be 0,1, 2, 3, or 4")
@@ -84,6 +93,7 @@ func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
 	warning = log.New(os.Stdout, warningname, xborbits)
 	debug = log.New(os.Stdout, debugname, xborbits)
 	info = log.New(os.Stdout, infoname, xborbits)
+	audit = log.New(os.Stdout, auditname, xborbits)
 
 	if lvl >= Silencelvl {
 		errorl = log.New(ioutil.Discard, errorname, 0)
