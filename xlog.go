@@ -100,6 +100,7 @@ func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
 		warning = log.New(ioutil.Discard, warningname, 0)
 		debug = log.New(ioutil.Discard, debugname, 0)
 		info = log.New(ioutil.Discard, infoname, 0)
+		audit = log.New(io.Discard, auditname, 0)
 	}
 
 	if lvl >= Errorlvl {
