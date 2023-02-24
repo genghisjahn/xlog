@@ -74,6 +74,8 @@ const (
 	//Infolvl sets logging to Info
 	Infolvl = 4
 
+	Auditlvl = 5
+
 	errorname   = "ERROR: "
 	warningname = "WARNING: "
 	debugname   = "DEBUG: "
@@ -85,14 +87,15 @@ const (
 
 // New creates a new set of loggers for various logging levels
 func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
-	if lvl < Silencelvl || lvl > Infolvl {
-		return fmt.Errorf("lvl must be 0,1, 2, 3, or 4")
+	if lvl < Silencelvl || lvl > Auditlvl {
+		return fmt.Errorf("lvl must be 0,1, 2, 3, 4 or 5")
 	}
 	ctxKeys = ctxkeys
 	errorl = log.New(os.Stderr, errorname, xborbits)
 	warning = log.New(os.Stdout, warningname, xborbits)
 	debug = log.New(os.Stdout, debugname, xborbits)
 	info = log.New(os.Stdout, infoname, xborbits)
+	audit = log.New(os.Stdout, auditname, xborbits)
 
 	if lvl >= Silencelvl {
 		errorl = log.New(ioutil.Discard, errorname, 0)
@@ -102,7 +105,8 @@ func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
 		audit = log.New(io.Discard, auditname, 0)
 	}
 	//This needs to be on no matter what the log level
-	audit = log.New(os.Stdout, auditname, xborbits)
+	audit = getLogger(Auditlvl, auditname, logw)
+
 	if lvl >= Errorlvl {
 		errorl = getLogger(Errorlvl, errorname, logw)
 		warning = log.New(ioutil.Discard, warningname, 0)
