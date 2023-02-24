@@ -93,7 +93,6 @@ func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
 	warning = log.New(os.Stdout, warningname, xborbits)
 	debug = log.New(os.Stdout, debugname, xborbits)
 	info = log.New(os.Stdout, infoname, xborbits)
-	audit = log.New(os.Stdout, auditname, xborbits)
 
 	if lvl >= Silencelvl {
 		errorl = log.New(ioutil.Discard, errorname, 0)
@@ -102,7 +101,7 @@ func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
 		info = log.New(ioutil.Discard, infoname, 0)
 		audit = log.New(io.Discard, auditname, 0)
 	}
-
+	audit = log.New(os.Stdout, auditname, xborbits)
 	if lvl >= Errorlvl {
 		errorl = getLogger(Errorlvl, errorname, logw)
 		warning = log.New(ioutil.Discard, warningname, 0)
