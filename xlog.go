@@ -101,6 +101,7 @@ func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
 		info = log.New(ioutil.Discard, infoname, 0)
 		audit = log.New(io.Discard, auditname, 0)
 	}
+	//This needs to be on no matter what the log level
 	audit = log.New(os.Stdout, auditname, xborbits)
 	if lvl >= Errorlvl {
 		errorl = getLogger(Errorlvl, errorname, logw)
