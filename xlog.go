@@ -104,26 +104,34 @@ func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
 		info = log.New(ioutil.Discard, infoname, 0)
 		audit = log.New(io.Discard, auditname, 0)
 	}
-	//This needs to be on no matter what the log level
-	audit = getLogger(Auditlvl, auditname, logw)
 
 	if lvl >= Errorlvl {
 		errorl = getLogger(Errorlvl, errorname, logw)
 		warning = log.New(ioutil.Discard, warningname, 0)
 		debug = log.New(ioutil.Discard, debugname, 0)
 		info = log.New(ioutil.Discard, infoname, 0)
+
+		//This needs to be on no matter what the log level
+		audit = getLogger(Auditlvl, auditname, logw)
 	}
 	if lvl >= Warninglvl {
 		warning = getLogger(Warninglvl, warningname, logw)
 		debug = log.New(ioutil.Discard, debugname, 0)
 		info = log.New(ioutil.Discard, infoname, 0)
+
+		//This needs to be on no matter what the log level
+		audit = getLogger(Auditlvl, auditname, logw)
 	}
 	if lvl >= Debuglvl {
 		debug = getLogger(Debuglvl, debugname, logw)
 		info = log.New(ioutil.Discard, infoname, 0)
+		//This needs to be on no matter what the log level
+		audit = getLogger(Auditlvl, auditname, logw)
 	}
 	if lvl == Infolvl {
 		info = getLogger(Infolvl, infoname, logw)
+		//This needs to be on no matter what the log level
+		audit = getLogger(Auditlvl, auditname, logw)
 	}
 	return nil
 }
