@@ -25,6 +25,24 @@ func TestErrorNoContextVals(t *testing.T) {
 	}
 }
 
+func TestErrorWithContextBits(t *testing.T) {
+	ctx := context.TODO()
+	ctx = context.WithValue(ctx, Key("reqid"), "abcd1234")
+	errbuf := new(bytes.Buffer)
+	errLog := NewXoribts(1, []Key{"reqid"}, log.Lshortfile, errbuf)
+	if errLog != nil {
+		t.Error(errLog)
+	}
+	Error(ctx).Println("A message that contains an error with reqid")
+	result := errbuf.String()
+	fmt.Println("***", result)
+	p := "ERROR: [reqid:abcd1234]"
+	s := "A message that contains an error with reqid\n"
+	if !strings.HasPrefix(result, p) || !strings.HasSuffix(result, s) {
+		t.Errorf("\nExpected prefix %s & suffix %s\nReceived %s\n", p, s, result)
+	}
+}
+
 func TestErrorWithContext(t *testing.T) {
 	ctx := context.TODO()
 	ctx = context.WithValue(ctx, Key("reqid"), "abcd1234")
@@ -86,7 +104,7 @@ func TestNoWriters(t *testing.T) {
 }
 
 func TestInvalidLevel(t *testing.T) {
-	errLog := New(5, nil)
+	errLog := New(6, nil)
 	if errLog == nil {
 		fmt.Println("This should have returned an error, it's an invalid logging level")
 	}
