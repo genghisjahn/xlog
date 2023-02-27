@@ -81,9 +81,59 @@ const (
 	debugname   = "DEBUG: "
 	infoname    = "INFO: "
 	auditname   = "AUDIT: "
-
-	xborbits = log.Ldate | log.Ltime | log.Lshortfile
 )
+
+var xborbits = log.Ldate | log.Ltime | log.Lshortfile
+
+func NewXoribts(lvl int, ctxkeys []Key, bits int, logw ...io.Writer) error {
+	if lvl < Silencelvl || lvl > Auditlvl {
+		return fmt.Errorf("lvl must be 0,1, 2, 3, 4 or 5")
+	}
+	ctxKeys = ctxkeys
+	errorl = log.New(os.Stderr, errorname, bits)
+	warning = log.New(os.Stdout, warningname, bits)
+	debug = log.New(os.Stdout, debugname, bits)
+	info = log.New(os.Stdout, infoname, bits)
+	audit = log.New(os.Stdout, auditname, bits)
+
+	if lvl >= Silencelvl {
+		errorl = log.New(ioutil.Discard, errorname, 0)
+		warning = log.New(ioutil.Discard, warningname, 0)
+		debug = log.New(ioutil.Discard, debugname, 0)
+		info = log.New(ioutil.Discard, infoname, 0)
+		audit = log.New(io.Discard, auditname, 0)
+	}
+
+	if lvl >= Errorlvl {
+		errorl = getLogger(Errorlvl, errorname, logw, bits)
+		warning = log.New(ioutil.Discard, warningname, 0)
+		debug = log.New(ioutil.Discard, debugname, 0)
+		info = log.New(ioutil.Discard, infoname, 0)
+
+		//This needs to be on no matter what the log level
+		audit = getLogger(Auditlvl, auditname, logw, bits)
+	}
+	if lvl >= Warninglvl {
+		warning = getLogger(Warninglvl, warningname, logw, bits)
+		debug = log.New(ioutil.Discard, debugname, 0)
+		info = log.New(ioutil.Discard, infoname, 0)
+
+		//This needs to be on no matter what the log level
+		audit = getLogger(Auditlvl, auditname, logw, bits)
+	}
+	if lvl >= Debuglvl {
+		debug = getLogger(Debuglvl, debugname, logw, bits)
+		info = log.New(ioutil.Discard, infoname, 0)
+		//This needs to be on no matter what the log level
+		audit = getLogger(Auditlvl, auditname, logw, bits)
+	}
+	if lvl == Infolvl {
+		info = getLogger(Infolvl, infoname, logw, bits)
+		//This needs to be on no matter what the log level
+		audit = getLogger(Auditlvl, auditname, logw, bits)
+	}
+	return nil
+}
 
 // New creates a new set of loggers for various logging levels
 func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
@@ -106,44 +156,44 @@ func New(lvl int, ctxkeys []Key, logw ...io.Writer) error {
 	}
 
 	if lvl >= Errorlvl {
-		errorl = getLogger(Errorlvl, errorname, logw)
+		errorl = getLogger(Errorlvl, errorname, logw, xborbits)
 		warning = log.New(ioutil.Discard, warningname, 0)
 		debug = log.New(ioutil.Discard, debugname, 0)
 		info = log.New(ioutil.Discard, infoname, 0)
 
 		//This needs to be on no matter what the log level
-		audit = getLogger(Auditlvl, auditname, logw)
+		audit = getLogger(Auditlvl, auditname, logw, xborbits)
 	}
 	if lvl >= Warninglvl {
-		warning = getLogger(Warninglvl, warningname, logw)
+		warning = getLogger(Warninglvl, warningname, logw, xborbits)
 		debug = log.New(ioutil.Discard, debugname, 0)
 		info = log.New(ioutil.Discard, infoname, 0)
 
 		//This needs to be on no matter what the log level
-		audit = getLogger(Auditlvl, auditname, logw)
+		audit = getLogger(Auditlvl, auditname, logw, xborbits)
 	}
 	if lvl >= Debuglvl {
-		debug = getLogger(Debuglvl, debugname, logw)
+		debug = getLogger(Debuglvl, debugname, logw, xborbits)
 		info = log.New(ioutil.Discard, infoname, 0)
 		//This needs to be on no matter what the log level
-		audit = getLogger(Auditlvl, auditname, logw)
+		audit = getLogger(Auditlvl, auditname, logw, xborbits)
 	}
 	if lvl == Infolvl {
-		info = getLogger(Infolvl, infoname, logw)
+		info = getLogger(Infolvl, infoname, logw, xborbits)
 		//This needs to be on no matter what the log level
-		audit = getLogger(Auditlvl, auditname, logw)
+		audit = getLogger(Auditlvl, auditname, logw, xborbits)
 	}
 	return nil
 }
 
-func getLogger(lvl int, name string, logw []io.Writer) *log.Logger {
+func getLogger(lvl int, name string, logw []io.Writer, bits int) *log.Logger {
 	if len(logw) >= lvl {
 		return log.New(logw[lvl-1],
 			name,
-			xborbits)
+			bits)
 	}
 	if lvl == 1 {
-		return log.New(os.Stderr, name, xborbits)
+		return log.New(os.Stderr, name, bits)
 	}
-	return log.New(os.Stdout, name, xborbits)
+	return log.New(os.Stdout, name, bits)
 }
